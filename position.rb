@@ -1,7 +1,6 @@
 # frozen_string_literal: true
 
 require 'money'
-require 'paint'
 
 Money.locale_backend = :currency
 Money.rounding_mode = BigDecimal::ROUND_HALF_UP
