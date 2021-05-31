@@ -8,6 +8,12 @@ Add a `ticker.yml` file using the format found in `ticker_example.yml`. Each sym
 
 Note: `cost_basis` here should be the avg price paid per share
 
+before running:
+
+```sh
+bundle install
+```
+
 to run:
 
 ```sh
