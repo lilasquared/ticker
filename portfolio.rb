@@ -1,0 +1,74 @@
+# frozen_string_literal: true
+
+require 'httparty'
+require 'paint'
+require_relative 'position'
+
+# encapsulates a stock portfolio
+class Portfolio
+  attr_reader :config
+
+  def initialize(config)
+    @config = config
+  end
+
+  def positions
+    @positions ||= data.map(&method(:position))
+                       .sort_by(&:change)
+                       .reverse
+  end
+
+  def total
+    @total ||= positions.reduce(0) { |sum, position| sum + position.current_value }
+  end
+
+  def change
+    @change ||= positions.reduce(0) { |sum, position| sum + position.change }
+  end
+
+  def percent
+    change / (total - change) * 100
+  end
+
+  private
+
+  def position(data_point)
+    symbol = data_point['symbol']
+    Position.new(
+      symbol: symbol,
+      shares: config[symbol]['shares'],
+      cost_basis: config[symbol]['cost_basis'],
+      current_price: data_point['regularMarketPrice']
+    )
+  end
+
+  def data
+    @data ||= HTTParty.get(endpoint, options).parsed_response['quoteResponse']['result']
+  end
+
+  def fields
+    %w[symbol marketState regularMarketPrice regularMarketChange regularMarketChangePercent
+       preMarketPrice preMarketChange preMarketChangePercent postMarketPrice postMarketChange
+       postMarketChangePercent].join(',')
+  end
+
+  def symbols
+    config.keys.join(',')
+  end
+
+  def options
+    {
+      query: {
+        fields: fields,
+        symbols: symbols
+      },
+      headers: {
+        'user-agent': 'Mozilla/5.0'
+      }
+    }
+  end
+
+  def endpoint
+    'https://query1.finance.yahoo.com/v7/finance/quote?lang=en-US&region=US'
+  end
+end
