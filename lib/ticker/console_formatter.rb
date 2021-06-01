@@ -27,8 +27,9 @@ module Ticker
            'UNITS'.rjust(15) +
            'VALUE'.rjust(15) +
            '$ CHANGE'.rjust(15) +
-           '% CHANGE'.rjust(10)
-      puts '-' * 75
+           '% CHANGE'.rjust(10) +
+           'DAY CHANGE'.rjust(15)
+      puts '-' * 90
     end
 
     def print_position(position)
@@ -37,18 +38,20 @@ module Ticker
            format_value(position.units, 15) +
            format_value(position.current_value, 15, effect: :bold) +
            format_change(position.change, 15) +
-           format_change(position.change_percent.round(2), 10)
+           format_change(position.change_percent.round(2), 10) +
+           format_change(position.day_change, 15)
       sleep 0.1
     end
 
     def print_footer
-      puts '-' * 75
+      puts '-' * 90
       puts format_value('TOTAL', 10, method: :ljust) +
            format_value('-', 10) +
            format_value('-', 15) +
            format_value(portfolio.total, 15, effect: :bold) +
            format_change(portfolio.change, 15) +
-           format_change(portfolio.percent.round(2), 10)
+           format_change(portfolio.percent.round(2), 10) +
+           format_change(portfolio.day_change, 15)
     end
 
     def format_change(value, width)

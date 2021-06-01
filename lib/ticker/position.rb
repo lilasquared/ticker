@@ -10,11 +10,12 @@ module Ticker
   class Position
     attr_reader :symbol, :units, :cost_basis, :current_price
 
-    def initialize(symbol:, units:, cost_basis:, current_price:)
+    def initialize(symbol:, units:, cost_basis:, data:)
       @symbol = symbol
       @units = units
       @cost_basis = Money.from_amount(cost_basis, 'USD')
-      @current_price = Money.from_amount(current_price, 'USD')
+      @current_price = Money.from_amount(data['regularMarketPrice'], 'USD')
+      @day_change = Money.from_amount(data['regularMarketChange'], 'USD')
     end
 
     def original_value
@@ -31,6 +32,10 @@ module Ticker
 
     def change_percent
       change / original_value * 100
+    end
+
+    def day_change
+      units * @day_change
     end
   end
 end

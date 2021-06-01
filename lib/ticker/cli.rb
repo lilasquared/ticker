@@ -62,15 +62,15 @@ module Ticker
     private
 
     def config
-      @config ||= File.exist?('ticker.yml') ? YAML.safe_load(File.read('ticker.yml')) : {}
+      File.exist?('ticker.yml') ? YAML.safe_load(File.read('ticker.yml')) : {}
     end
 
     def portfolio
-      @portfolio ||= Portfolio.new(config)
+      Portfolio.new(config)
     end
 
     def formatter
-      @formatter ||= ConsoleFormatter.new(portfolio)
+      ConsoleFormatter.new(portfolio)
     end
 
     def save

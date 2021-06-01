@@ -15,8 +15,8 @@ module Ticker
 
     def positions
       @positions ||= data.map(&method(:position))
-                         .sort_by(&:change)
-                         .reverse
+        .sort_by(&:change)
+        .reverse
     end
 
     def total
@@ -31,15 +31,19 @@ module Ticker
       change / (total - change) * 100
     end
 
+    def day_change
+      @day_change ||= positions.reduce(0) { |sum, position| sum + position.day_change }
+    end
+
     private
 
-    def position(data_point)
-      symbol = data_point['symbol']
+    def position(data)
+      symbol = data['symbol']
       Position.new(
         symbol: symbol,
         units: config[symbol]['units'],
         cost_basis: config[symbol]['cost_basis'],
-        current_price: data_point['regularMarketPrice']
+        data: data,
       )
     end
 
@@ -61,11 +65,11 @@ module Ticker
       {
         query: {
           fields: fields,
-          symbols: symbols
+          symbols: symbols,
         },
         headers: {
-          'user-agent': 'Mozilla/5.0'
-        }
+          'user-agent': 'Mozilla/5.0',
+        },
       }
     end
 
