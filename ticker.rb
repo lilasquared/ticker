@@ -2,23 +2,65 @@
 
 require_relative 'console_formatter'
 require_relative 'portfolio'
+require 'thor'
 require 'yaml'
 
-config = YAML.safe_load(File.read('ticker.yml'))
-portfolio = Portfolio.new(config)
-formatter = ConsoleFormatter.new(portfolio)
+# ticker app
+class Ticker < Thor
+  desc 'add SYMBOL -u 100 -c 100', 'Add a position to your portfolio'
+  method_option :units, aliases: '-u', desc: 'Specify a quantity of units'
+  method_option :cost_basis, aliases: '-c', desc: 'Specify a cost bais (in dollars)'
+  def add(symbol)
+    config[symbol] = {
+      'units' => options[:units].to_f,
+      'cost_basis' => options[:cost_basis].to_f
+    }
+    save
+  end
 
-exit_requested = !ARGV[0]&.match?(/loop/)
-interval = ARGV[0]&.split('=')&.[](1)&.to_i || 5
+  desc 'remove SYMBOL', 'Remove a position from your portfolio'
+  def remove(symbol)
+    config.tap { |c| c.delete(symbol) }
+    save
+  end
 
-Kernel.trap('INT') { exit_requested = true }
+  desc 'monitor -i 10', 'Monitor your portfolio with specified interval'
+  method_option :interval, aliases: '-i', desc: 'Specify a loop interval in seconds (default 5)'
+  def monitor
+    interval = options[:interval]&.to_i || 5
+    exit_requested = false
 
-loop do
-  system 'clear'
+    Kernel.trap('INT') { exit_requested = true }
 
-  formatter.print
+    until exit_requested
+      print
+      sleep interval
+    end
+  end
 
-  break if exit_requested
+  desc 'print', 'Print out your portfolio just once'
+  def print
+    system 'clear'
+    formatter.print
+  end
 
-  sleep interval
+  private
+
+  def config
+    @config ||= YAML.safe_load(File.read('ticker.yml'))
+  end
+
+  def portfolio
+    @portfolio ||= Portfolio.new(config)
+  end
+
+  def formatter
+    @formatter ||= ConsoleFormatter.new(portfolio)
+  end
+
+  def save
+    File.write('ticker.yml', YAML.dump(config))
+  end
 end
+
+Ticker.start

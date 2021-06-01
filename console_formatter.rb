@@ -33,7 +33,7 @@ class ConsoleFormatter
   def print_position(position)
     puts format_value(position.symbol, 10, method: :ljust) +
          format_value(position.current_price, 10) +
-         format_value(position.shares, 15) +
+         format_value(position.units, 15) +
          format_value(position.current_value, 15, effect: :bold) +
          format_change(position.change, 15) +
          format_change(position.change_percent.round(2), 10)

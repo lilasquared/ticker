@@ -7,21 +7,21 @@ Money.rounding_mode = BigDecimal::ROUND_HALF_UP
 
 # a single position in a portfolio
 class Position
-  attr_reader :symbol, :shares, :cost_basis, :current_price
+  attr_reader :symbol, :units, :cost_basis, :current_price
 
-  def initialize(symbol:, shares:, cost_basis:, current_price:)
+  def initialize(symbol:, units:, cost_basis:, current_price:)
     @symbol = symbol
-    @shares = shares
+    @units = units
     @cost_basis = Money.from_amount(cost_basis, 'USD')
     @current_price = Money.from_amount(current_price, 'USD')
   end
 
   def original_value
-    shares * cost_basis
+    units * cost_basis
   end
 
   def current_value
-    shares * current_price
+    units * current_price
   end
 
   def change
