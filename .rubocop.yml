@@ -1,0 +1,63 @@
+require:
+  - rubocop-rspec
+
+AllCops:
+  NewCops: enable
+  TargetRubyVersion: 2.5.5
+  RSpec:
+    Patterns:
+      - "test/factories/.*"
+
+Layout/LineLength:
+  Max: 120
+
+Layout/ParameterAlignment:
+  EnforcedStyle: with_fixed_indentation
+
+Metrics/BlockLength:
+  Max: 70
+  Exclude:
+    - "spec/**/*.rb"
+    - "dxt.gemspec"
+
+Metrics/MethodLength:
+  Max: 40
+
+Metrics/ClassLength:
+  Max: 250
+
+Metrics/AbcSize:
+  Enabled: false
+
+Style/Documentation:
+  Enabled: false
+
+Style/Lambda:
+  Enabled: false
+
+Style/SymbolArray:
+  Enabled: false
+
+Style/TrailingCommaInArguments:
+  EnforcedStyleForMultiline: comma
+
+Style/TrailingCommaInArrayLiteral:
+  EnforcedStyleForMultiline: comma
+
+Style/TrailingCommaInHashLiteral:
+  EnforcedStyleForMultiline: comma
+
+Style/WordArray:
+  Enabled: false
+
+Layout/MultilineMethodCallIndentation:
+  EnforcedStyle: indented
+
+Style/HashEachMethods:
+  Enabled: True
+
+Style/HashTransformKeys:
+  Enabled: True
+
+Style/HashTransformValues:
+  Enabled: True

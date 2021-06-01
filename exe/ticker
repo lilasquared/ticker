@@ -1,0 +1,47 @@
+#!/bin/bash
+
+#color control codes to highlight console output
+red=`tput setaf 1`
+reset=`tput sgr0`
+
+REAL_FILE=$(readlink $0 || echo $0)
+BASE_DIR=$(dirname $(dirname $REAL_FILE))
+
+export BUNDLE_GEMFILE="$BASE_DIR/Gemfile"
+#DO NOT CHANGE VARIABLE NAME: RBENV_VERSION. It is needed to run ruby version manager rbenv.
+export RBENV_VERSION=$(cat $BASE_DIR/.ruby-version)
+
+if [[ -s "$HOME/.rvm/scripts/rvm" ]]; then
+    source "$HOME/.rvm/scripts/rvm"
+elif [[ -s "/usr/local/rvm/scripts/rvm" ]]; then
+    source "/usr/local/rvm/scripts/rvm"
+elif [[ -s "/usr/local/opt/asdf/asdf.sh" ]]; then
+    source "/usr/local/opt/asdf/asdf.sh"
+elif [[ -s "/usr/local/share/chruby/chruby.sh" ]]; then
+    source "/usr/local/share/chruby/chruby.sh"
+fi
+
+
+COMMAND="echo useless command"
+INSTALLED_RUBY_VERSIONS=x.x.x
+if type rbenv > /dev/null 2>&1; then
+    INSTALLED_RUBY_VERSIONS=$(rbenv versions)
+elif type rvm > /dev/null 2>&1; then
+    COMMAND="rvm use $RBENV_VERSION"
+    INSTALLED_RUBY_VERSIONS=$(rvm list)
+elif type asdf > /dev/null 2>&1; then
+    INSTALLED_RUBY_VERSIONS=$(asdf list ruby)
+    COMMAND="asdf shell ruby $RBENV_VERSION"
+elif type chruby > /dev/null 2>&1; then
+    INSTALLED_RUBY_VERSIONS=$(chruby)
+    COMMAND="chruby $RBENV_VERSION"
+fi
+
+if [[ ! $INSTALLED_RUBY_VERSIONS == *"$RBENV_VERSION"* ]]; then
+    echo "${red}Please install ruby version $RBENV_VERSION.${reset}"
+    exit 1
+fi
+
+eval "$COMMAND" > /dev/null
+
+exec ruby -I "$BASE_DIR/lib" -r ticker/boot -e boot_ticker $@

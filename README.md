@@ -4,14 +4,12 @@ A simple ruby program to pull ticker information from yahoo finance api and disp
 
 # How To
 
-## Setup
-
-Make sure you have ruby installed.
+## Setup (mac/linux)
 
 ```bash
 git clone https://github.com/lilasquared/ticker.git
 cd ticker
-bundle
+bin/setup
 ```
 
 ## Configuration
@@ -30,8 +28,8 @@ GME:
 2. Use ticker itself to add portfolio positions
 
 ```bash
-ruby ticker.rb add GME -u 100 -c 100.00
-ruby ticker.rb remove GME
+ticker add GME -u 100 -c 100.00
+ticker remove GME
 ```
 
 ## Monitoring
@@ -39,13 +37,19 @@ ruby ticker.rb remove GME
 To monitor your portfolio use the `monitor` command
 
 ```sh
-ruby ticker.rb monitor
+ticker monitor
 ```
 
 you can also specify a custom interval (default is 5 seconds)
 
 ```sh
-ruby ticker.rb monitor -i 10
+ticker monitor -i 10
+```
+
+or you can print it just once with
+
+```sh
+ticker print
 ```
 
 ## Why?

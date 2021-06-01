@@ -1,0 +1,24 @@
+#!/usr/bin/env bash
+set -euo pipefail
+IFS=$'\n\t'
+set -vx
+
+if ! ruby -v 2>/dev/null | grep -q "^ruby 3\.0\."; then
+  echo "ruby 3.0.0 required, we recommend rbenv or rvm!"
+  exit 1
+fi
+
+rvmpath=$(which rvm || true)
+rbenvpath=$(which rbenv || true)
+
+gemarg=''
+bdlarg=''
+if [[ -z "$rvmpath$rbenvpath" ]]; then
+  gemarg="--user-install"
+  bdlarg="--path=vendor/bundle"
+fi
+
+gem search -i bundler || gem install $gemarg bundler
+bundle install $bdlarg
+
+./ticker install
