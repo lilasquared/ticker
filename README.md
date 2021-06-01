@@ -18,7 +18,7 @@ bundle
 
 You can configure the ticker 2 ways.
 
-1. Add a `ticker.yml` file using the format belor. Each symbol you provide will be used to fetch the `regularMarketPrice` from the yahoo-finance api. The given `units` and `cost_basis` will be used to calculate your position value and change. Note: `cost_basis` here should be the avg price paid per share
+1. Add a `ticker.yml` file using the format below. Each symbol you provide will be used to fetch the `regularMarketPrice` from the yahoo-finance api. The given `units` and `cost_basis` will be used to calculate your position value and change. Note: `cost_basis` here should be the avg price paid per share
 
 ```yml
 # ticker.yml
