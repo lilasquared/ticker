@@ -36,7 +36,7 @@ class Portfolio
     symbol = data_point['symbol']
     Position.new(
       symbol: symbol,
-      shares: config[symbol]['shares'],
+      units: config[symbol]['units'],
       cost_basis: config[symbol]['cost_basis'],
       current_price: data_point['regularMarketPrice']
     )
