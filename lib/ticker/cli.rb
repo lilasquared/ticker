@@ -62,8 +62,14 @@ module Ticker
 
     private
 
+    def default_config
+      {
+        'portfolio' => {}
+      }
+    end
+
     def config
-      @config ||= File.exist?('ticker.yml') ? YAML.safe_load(File.read('ticker.yml')) : {}
+      @config ||= File.exist?('ticker.yml') ? YAML.safe_load(File.read('ticker.yml')) : default_config
     end
 
     def portfolio_config
