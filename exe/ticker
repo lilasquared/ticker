@@ -21,27 +21,6 @@ elif [[ -s "/usr/local/share/chruby/chruby.sh" ]]; then
     source "/usr/local/share/chruby/chruby.sh"
 fi
 
-
-COMMAND="echo useless command"
-INSTALLED_RUBY_VERSIONS=x.x.x
-if type rbenv > /dev/null 2>&1; then
-    INSTALLED_RUBY_VERSIONS=$(rbenv versions)
-elif type rvm > /dev/null 2>&1; then
-    COMMAND="rvm use $RBENV_VERSION"
-    INSTALLED_RUBY_VERSIONS=$(rvm list)
-elif type asdf > /dev/null 2>&1; then
-    INSTALLED_RUBY_VERSIONS=$(asdf list ruby)
-    COMMAND="asdf shell ruby $RBENV_VERSION"
-elif type chruby > /dev/null 2>&1; then
-    INSTALLED_RUBY_VERSIONS=$(chruby)
-    COMMAND="chruby $RBENV_VERSION"
-fi
-
-if [[ ! $INSTALLED_RUBY_VERSIONS == *"$RBENV_VERSION"* ]]; then
-    echo "${red}Please install ruby version $RBENV_VERSION.${reset}"
-    exit 1
-fi
-
 eval "$COMMAND" > /dev/null
 
 exec ruby -I "$BASE_DIR/lib" -r ticker/boot -e boot_ticker $@
