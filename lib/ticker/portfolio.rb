@@ -7,14 +7,13 @@ require 'ticker/position'
 module Ticker
   # encapsulates a stock portfolio
   class Portfolio
-    attr_reader :config
-
-    def initialize(config)
+    def initialize(config, data)
       @config = config
+      @data = data
     end
 
     def positions
-      @positions ||= data.map(&method(:position))
+      @data.map(&method(:position))
         .sort_by(&:change)
         .reverse
     end
@@ -37,44 +36,14 @@ module Ticker
 
     private
 
-    def position(data)
-      symbol = data['symbol']
+    def position(quote)
+      symbol = quote['symbol']
       Position.new(
         symbol: symbol,
-        units: config[symbol]['units'],
-        cost_basis: config[symbol]['cost_basis'],
-        data: data,
+        units: @config[symbol]['units'],
+        cost_basis: @config[symbol]['cost_basis'],
+        data: quote,
       )
-    end
-
-    def data
-      @data ||= HTTParty.get(endpoint, options).parsed_response['quoteResponse']['result']
-    end
-
-    def fields
-      %w[symbol marketState regularMarketPrice regularMarketChange regularMarketChangePercent
-         preMarketPrice preMarketChange preMarketChangePercent postMarketPrice postMarketChange
-         postMarketChangePercent].join(',')
-    end
-
-    def symbols
-      config.keys.join(',')
-    end
-
-    def options
-      {
-        query: {
-          fields: fields,
-          symbols: symbols,
-        },
-        headers: {
-          'user-agent': 'Mozilla/5.0',
-        },
-      }
-    end
-
-    def endpoint
-      'https://query1.finance.yahoo.com/v7/finance/quote?lang=en-US&region=US'
     end
   end
 end

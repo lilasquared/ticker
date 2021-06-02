@@ -5,6 +5,7 @@ require 'yaml'
 require 'ticker/console_formatter'
 require 'ticker/portfolio'
 require 'ticker/root_path'
+require 'ticker/yahoo_finance'
 
 module Ticker
   # ticker app
@@ -13,7 +14,7 @@ module Ticker
     method_option :units, aliases: '-u', desc: 'Specify a quantity of units'
     method_option :cost_basis, aliases: '-c', desc: 'Specify a cost bais (in dollars)'
     def add(symbol)
-      config[symbol] = {
+      portfolio_config[symbol] = {
         'units' => options[:units].to_f,
         'cost_basis' => options[:cost_basis].to_f,
       }
@@ -22,7 +23,7 @@ module Ticker
 
     desc 'remove SYMBOL', 'Remove a position from your portfolio'
     def remove(symbol)
-      config.tap { |c| c.delete(symbol) }
+      portfolio_config.tap { |c| c.delete(symbol) }
       save
     end
 
@@ -62,15 +63,31 @@ module Ticker
     private
 
     def config
-      File.exist?('ticker.yml') ? YAML.safe_load(File.read('ticker.yml')) : {}
+      @config ||= File.exist?('ticker.yml') ? YAML.safe_load(File.read('ticker.yml')) : {}
+    end
+
+    def portfolio_config
+      config['portfolio']
+    end
+
+    def output_config
+      config['output']
+    end
+
+    def symbols
+      portfolio_config.keys
+    end
+
+    def data
+      YahooFinance.get_quote(symbols)
     end
 
     def portfolio
-      Portfolio.new(config)
+      Portfolio.new(portfolio_config, data)
     end
 
     def formatter
-      ConsoleFormatter.new(portfolio)
+      ConsoleFormatter.new(portfolio, output_config)
     end
 
     def save

@@ -8,14 +8,21 @@ Money.rounding_mode = BigDecimal::ROUND_HALF_UP
 module Ticker
   # a single position in a portfolio
   class Position
-    attr_reader :symbol, :units, :cost_basis, :current_price
+    attr_reader :symbol, :units, :cost_basis
 
     def initialize(symbol:, units:, cost_basis:, data:)
       @symbol = symbol
       @units = units
-      @cost_basis = Money.from_amount(cost_basis, 'USD')
-      @current_price = Money.from_amount(data['regularMarketPrice'], 'USD')
-      @day_change = Money.from_amount(data['regularMarketChange'], 'USD')
+      @cost_basis = money(cost_basis)
+      @data = data
+    end
+
+    def regular_market_price
+      @regular_market_price ||= @data['regularMarketPrice']
+    end
+
+    def current_price
+      @current_price ||= money(@data["#{state}MarketPrice"] || regular_market_price)
     end
 
     def original_value
@@ -34,8 +41,22 @@ module Ticker
       change / original_value * 100
     end
 
+    def _day_change
+      money(@data['regularMarketChange'])
+    end
+
     def day_change
-      units * @day_change
+      units * _day_change
+    end
+
+    private
+
+    def state
+      @data['marketState'].downcase
+    end
+
+    def money(amount)
+      Money.from_amount(amount, 'USD')
     end
   end
 end

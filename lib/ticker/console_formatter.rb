@@ -6,8 +6,6 @@ require 'ticker/portfolio'
 module Ticker
   # formats a portfolio for output
   class ConsoleFormatter
-    attr_reader :portfolio
-
     def initialize(portfolio, options = {})
       @portfolio = portfolio
       @options = options
@@ -15,7 +13,7 @@ module Ticker
 
     def print
       print_header
-      portfolio.positions.each(&method(:print_position))
+      @portfolio.positions.each(&method(:print_position))
       print_footer
     end
 
@@ -48,10 +46,10 @@ module Ticker
       puts format_value('TOTAL', 10, method: :ljust) +
            format_value('-', 10) +
            format_value('-', 15) +
-           format_value(portfolio.total, 15, effect: :bold) +
-           format_change(portfolio.change, 15) +
-           format_change(portfolio.percent.round(2), 10) +
-           format_change(portfolio.day_change, 15)
+           format_value(@portfolio.total, 15, effect: :bold) +
+           format_change(@portfolio.change, 15) +
+           format_change(@portfolio.percent.round(2), 10) +
+           format_change(@portfolio.day_change, 15)
     end
 
     def format_change(value, width)
