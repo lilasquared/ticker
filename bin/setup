@@ -21,4 +21,4 @@ fi
 gem search -i bundler || gem install $gemarg bundler
 bundle install $bdlarg
 
-./ticker install
+./exe/ticker install
