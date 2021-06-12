@@ -7,42 +7,43 @@ require 'ticker/position'
 module Ticker
   # encapsulates a stock portfolio
   class Portfolio
-    def initialize(config, data)
+    def initialize(config, quotes)
       @config = config
-      @data = data
+      @quotes = quotes
     end
 
     def positions
-      @data.map(&method(:position))
-        .sort_by(&:change)
+      @quotes.map(&method(:position))
+        .sort_by(&:current_value)
         .reverse
     end
 
-    def total
-      @total ||= positions.reduce(0) { |sum, position| sum + position.current_value }
+    def original_value
+      @original_value ||= positions.sum(&:original_value)
     end
 
-    def change
-      @change ||= positions.reduce(0) { |sum, position| sum + position.change }
+    def current_value
+      @current_value ||= positions.sum(&:current_value)
     end
 
-    def percent
-      change / (total - change) * 100
+    def total_change
+      @total_change ||= positions.sum(&:total_change)
+    end
+
+    def total_change_percent
+      total_change / original_value * 100
     end
 
     def day_change
-      @day_change ||= positions.reduce(0) { |sum, position| sum + position.day_change }
+      @day_change ||= positions.sum(&:day_change)
     end
 
     private
 
     def position(quote)
-      symbol = quote['symbol']
       Position.new(
-        symbol: symbol,
-        units: @config[symbol]['units'],
-        cost_basis: @config[symbol]['cost_basis'],
-        data: quote,
+        quote: quote,
+        config: @config[quote.symbol],
       )
     end
   end

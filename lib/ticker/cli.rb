@@ -5,7 +5,7 @@ require 'yaml'
 require 'ticker/console_formatter'
 require 'ticker/portfolio'
 require 'ticker/root_path'
-require 'ticker/yahoo_finance'
+require 'ticker/yahoo_finance/api'
 
 module Ticker
   # ticker app
@@ -14,10 +14,18 @@ module Ticker
     method_option :units, aliases: '-u', desc: 'Specify a quantity of units'
     method_option :cost_basis, aliases: '-c', desc: 'Specify a cost bais (in dollars)'
     def add(symbol)
-      portfolio_config[symbol] = {
+      current_config = portfolio_config[symbol]
+      incoming_config = {
         'units' => options[:units].to_f,
         'cost_basis' => options[:cost_basis].to_f,
       }
+
+      if current_config.is_a?(Hash)
+        portfolio_config[symbol] = [current_config, incoming_config]
+      else
+        current_config << incoming_config
+      end
+
       save
     end
 
@@ -64,7 +72,7 @@ module Ticker
 
     def default_config
       {
-        'portfolio' => {}
+        'portfolio' => {},
       }
     end
 
@@ -84,12 +92,12 @@ module Ticker
       portfolio_config.keys
     end
 
-    def data
-      YahooFinance.get_quote(symbols)
+    def quotes
+      YahooFinance::API.get_quotes(symbols)
     end
 
     def portfolio
-      Portfolio.new(portfolio_config, data)
+      Portfolio.new(portfolio_config, quotes)
     end
 
     def formatter

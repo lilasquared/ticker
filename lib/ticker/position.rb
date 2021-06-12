@@ -8,21 +8,35 @@ Money.rounding_mode = BigDecimal::ROUND_HALF_UP
 module Ticker
   # a single position in a portfolio
   class Position
-    attr_reader :symbol, :units, :cost_basis
-
-    def initialize(symbol:, units:, cost_basis:, data:)
-      @symbol = symbol
-      @units = units
-      @cost_basis = money(cost_basis)
-      @data = data
+    def initialize(quote:, config:)
+      @quote = quote
+      @config = config
     end
 
-    def regular_market_price
-      @regular_market_price ||= @data['regularMarketPrice']
+    def symbol
+      @quote.symbol
     end
 
-    def current_price
-      @current_price ||= money(@data["#{state}MarketPrice"] || regular_market_price)
+    def units
+      if @config.is_a?(Hash)
+        @config['units']
+      else
+        @config.sum { |h| h['units'] }
+      end
+    end
+
+    def cost_basis
+      if @config.is_a?(Hash)
+        money(@config['cost_basis'])
+      else
+        money(@config.reduce(0) { |cost, hash| cost + hash['cost_basis'] * hash['units'] } / units)
+      end
+    end
+
+    def unit_price
+      @unit_price ||= money(@quote["#{market_state}MarketPrice"] ||
+        @quote.post_market_price ||
+        @quote.regular_market_price)
     end
 
     def original_value
@@ -30,29 +44,33 @@ module Ticker
     end
 
     def current_value
-      units * current_price
+      units * unit_price
     end
 
-    def change
+    def total_change
       current_value - original_value
     end
 
-    def change_percent
-      change / original_value * 100
-    end
-
-    def _day_change
-      money(@data['regularMarketChange'])
+    def total_change_percent
+      total_change / original_value * 100
     end
 
     def day_change
-      units * _day_change
+      units * money(@quote["#{market_state}MarketChange"] ||
+        @quote.post_market_change ||
+        @quote.regular_market_change)
+    end
+
+    def day_change_percent
+      @quote["#{market_state}MarketChangePercent"] ||
+        @quote.post_market_change_percent ||
+        @quote.regular_market_change_percent
     end
 
     private
 
-    def state
-      @data['marketState'].downcase
+    def market_state
+      @quote.market_state.downcase
     end
 
     def money(amount)

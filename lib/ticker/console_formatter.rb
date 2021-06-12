@@ -32,11 +32,11 @@ module Ticker
 
     def print_position(position)
       puts format_value(position.symbol, 10, method: :ljust) +
-           format_value(position.current_price, 10) +
+           format_value(position.unit_price, 10) +
            format_value(position.units, 15) +
            format_value(position.current_value, 15, effect: :bold) +
-           format_change(position.change, 15) +
-           format_change(position.change_percent.round(2), 10) +
+           format_change(position.total_change, 15) +
+           format_change(position.total_change_percent.round(2), 10) +
            format_change(position.day_change, 15)
       sleep 0.1
     end
@@ -46,9 +46,9 @@ module Ticker
       puts format_value('TOTAL', 10, method: :ljust) +
            format_value('-', 10) +
            format_value('-', 15) +
-           format_value(@portfolio.total, 15, effect: :bold) +
-           format_change(@portfolio.change, 15) +
-           format_change(@portfolio.percent.round(2), 10) +
+           format_value(@portfolio.current_value, 15, effect: :bold) +
+           format_change(@portfolio.total_change, 15) +
+           format_change(@portfolio.total_change_percent.round(2), 10) +
            format_change(@portfolio.day_change, 15)
     end
 

@@ -1,12 +1,6 @@
-require:
-  - rubocop-rspec
-
 AllCops:
   NewCops: enable
-  TargetRubyVersion: 2.5.5
-  RSpec:
-    Patterns:
-      - "test/factories/.*"
+  TargetRubyVersion: 2.6.3
 
 Layout/LineLength:
   Max: 120
@@ -16,9 +10,6 @@ Layout/ParameterAlignment:
 
 Metrics/BlockLength:
   Max: 70
-  Exclude:
-    - "spec/**/*.rb"
-    - "dxt.gemspec"
 
 Metrics/MethodLength:
   Max: 40
